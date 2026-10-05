@@ -4,7 +4,10 @@ xmltodict
 langchain
 langchain-core
 langchain-community
+langchain-chroma
 langchain_google_genai
+langchain-google-vertexai
+google-cloud-aiplatform
 grpcio
 langchain-experimental
 langchainhub

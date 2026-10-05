@@ -1,10 +1,11 @@
-"""Run a simple LangChain agent with access to a Python REPL."""
+"""Run a LangChain agent with Python and HW2 course-document tools."""
 
 import os
 
 from langchain.agents import create_agent
 from langchain_experimental.tools import PythonREPLTool
 from langchain_google_genai import ChatGoogleGenerativeAI
+from rag_tool import hw2_rag
 
 
 def create_llm() -> ChatGoogleGenerativeAI:
@@ -21,23 +22,28 @@ def create_llm() -> ChatGoogleGenerativeAI:
 
 
 def run_agent() -> None:
-    """Start an interactive agent that can use Python to answer questions."""
+    """Start an interactive agent with Python and HW2 RAG tools."""
     llm = create_llm()
     python_repl = PythonREPLTool()
+    tools = [python_repl, hw2_rag]
 
-    # Supplying the REPL as a tool lets the model choose when code will help.
+    # The model selects a tool based on whether the request needs computation
+    # or information from the indexed course documents.
     agent = create_agent(
         model=llm,
-        tools=[python_repl],
+        tools=tools,
         system_prompt=(
-            "You are a helpful assistant with access to a Python REPL. "
-            "Use the Python tool when calculations or short programs will help "
-            "answer the user's request. Explain the result clearly."
+            "You are a helpful assistant. Use PythonREPL for calculations, "
+            "numerical work, or short Python programs. Use the HW2 RAG tool "
+            "for questions that require information from the indexed HW2/course "
+            "documents. If neither tool is needed, answer directly. Explain "
+            "results clearly."
         ),
     )
 
-    print("Python REPL agent ready. Enter a question, or press Enter to quit.")
-    print(f"Available tool: {python_repl.name} — {python_repl.description}")
+    print("HW3 agent ready. Enter a question, or press Enter to quit.")
+    for tool in tools:
+        print(f"Available tool: {tool.name} — {tool.description}")
 
     while True:
         try:
@@ -54,7 +60,14 @@ def run_agent() -> None:
             result = agent.invoke(
                 {"messages": [{"role": "user", "content": user_input}]}
             )
-            print(f"assistant> {result['messages'][-1].content[0]['text']}")
+            answer = result["messages"][-1].content
+            # Provider responses may be plain text or a list of text blocks.
+            if isinstance(answer, list):
+                answer = "".join(
+                    block.get("text", "") if isinstance(block, dict) else str(block)
+                    for block in answer
+                )
+            print(f"assistant> {answer}")
         except Exception as error:
             print(f"Sorry, the request failed: {error}")
 
