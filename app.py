@@ -54,7 +54,7 @@ def run_agent() -> None:
             result = agent.invoke(
                 {"messages": [{"role": "user", "content": user_input}]}
             )
-            print(f"assistant> {result['messages'][-1].content}")
+            print(f"assistant> {result['messages'][-1].content[0]['text']}")
         except Exception as error:
             print(f"Sorry, the request failed: {error}")
 
