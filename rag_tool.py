@@ -79,4 +79,5 @@ Answer:"""
 @tool
 def hw2_rag(question: str) -> str:
     """Answer a question using information in the indexed HW2 course documents."""
+    print("[Ragtool called.]")
     return get_rag_chain().invoke(question)

@@ -4,6 +4,7 @@ xmltodict
 langchain
 langchain-core
 langchain-community
+arxiv<4
 langchain-chroma
 langchain_google_genai
 langchain-google-vertexai
